@@ -1,0 +1,149 @@
+{% extends './plantillas.html' %}
+{% block contenido %}
+
+<br><br><br><br><br>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm p-4">
+                <h2 class="text-muted fs-4 text-center">Registre un nuevo Animal</h2>
+
+                <form enctype="multipart/form-data" action="{% url 'guardarAnimal' %}" method="post" id="frm_nuevo_animal">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label">Tipo <span class="text-danger"></span></label>
+                        <input class="form-control" type="text" placeholder="Ej: Vaca, Toro, Becerro" name="tipo" id="tipo">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Sexo <span class="text-danger"></span></label>
+                        <select name="sexo" id="sexo" class="form-select">
+                            <option value="">Seleccione</option>
+                            <option value="M">Macho</option>
+                            <option value="F">Hembra</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Fecha de Nacimiento <span class="text-danger"></span></label>
+                        <input type="date" class="form-control" name="fecha_nacimiento" id="fecha_nacimiento">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Foto</label>
+                        <input type="file" name="foto" id="foto" class="form-control">
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fa fa-pencil"></i> Guardar
+                        </button>
+                        <a href="{% url 'AnimalIndex' %}" class="btn btn-secondary btn-lg">
+                            <i class="fa fa-times"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Validaciones con jQuery Validate -->
+<script>
+$(document).ready(function(){
+
+    // MÉTODO PERSONALIZADO: solo letras (para tipo)
+    $.validator.addMethod("lettersOnly", function(value, element){
+        return this.optional(element) || /^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$/.test(value);
+    }, "Solo se permiten letras");
+
+    // MÉTODO PERSONALIZADO: fecha no futura
+    $.validator.addMethod("notFutureDate", function(value, element){
+        if (!value) return true;
+        var today = new Date();
+        var inputDate = new Date(value);
+        today.setHours(0,0,0,0); // ignorar horas
+        return inputDate <= today;
+    }, "La fecha no puede ser futura");
+
+    $("#frm_nuevo_animal").validate({
+        rules: {
+            tipo: { 
+                required: true, 
+                minlength: 2, 
+                lettersOnly: true 
+            },
+            sexo: { 
+                required: true 
+            },
+            fecha_nacimiento: { 
+                required: true, 
+                date: true, 
+                notFutureDate: true 
+            },
+            foto: { 
+                extension: "jpg|jpeg|png" 
+            }
+        },
+        messages: {
+            tipo: { 
+                required: "Ingrese el tipo de animal",
+                minlength: "Mínimo 2 caracteres",
+                lettersOnly: "Solo se permiten letras"
+            },
+            sexo: "Seleccione el sexo",
+            fecha_nacimiento: {
+                required: "Ingrese la fecha de nacimiento",
+                notFutureDate: "La fecha no puede ser posterior a hoy"
+            },
+            foto: "Solo archivos JPG, JPEG o PNG"
+        },
+        errorClass: "text-danger",
+        errorElement: "small",
+        highlight: function(element) {
+            $(element).addClass("is-invalid");
+        },
+        unhighlight: function(element) {
+            $(element).removeClass("is-invalid");
+        }
+    });
+
+});
+</script>
+<script>
+        $("#foto").fileinput({
+                language: "es",
+                allowedFileExtensions:["png|jpg|jpeg"],
+                showCaption:false,
+                dropZoneEnabled:true,
+                showClose:false
+            });
+</script>
+
+<style>
+/* Diseño moderno como Nuevo Evento */
+
+.card {
+    border-radius: 1rem;
+    background-color: #fdfdfd;
+}
+.card .form-label {
+    font-weight: 600;
+}
+.card .form-control, .card .form-select {
+    border-radius: 0.5rem;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    transition: 0.3s;
+}
+.card .form-control:focus, .card .form-select:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.2rem rgba(40,167,69,0.25);
+}
+.card button:hover {
+    transform: scale(1.02);
+    transition: 0.2s;
+}
+</style>
+
+{% endblock %}

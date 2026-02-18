@@ -1,0 +1,102 @@
+{% extends './plantillas.html' %}
+{% block contenido %}
+<div class="container-fluid mt-5 px-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary bg-gradient text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fa fa-cow me-2"></i> Gestión de Ganados
+            </h5>
+
+            {% if user.rol == 'administrador' %}
+            <div>
+                <a href="{% url 'nuevaAnimal' %}" class="btn btn-light btn-sm me-2">
+                    <i class="fa fa-plus"></i> Nuevo
+                </a>
+                <a href="{% url 'generar_pdf_animales' %}" class="btn btn-danger btn-sm">
+                    <i class="fa fa-file-pdf-o"></i> PDF
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="card-body">
+            <table id="tbl_animales" class="table table-striped table-hover align-middle">
+                <thead class="table-secondary text-center">
+                    <tr>
+                        <th>#</th>
+                        <th>Tipo</th>
+                        <th>Sexo</th>
+                        <th>Fecha Nac.</th>
+                        <th>Foto</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center">
+                    {% for a in animales %}
+                    <tr>
+                        <td class="fw-semibold">{{ a.id }}</td>
+                        <td>{{ a.tipo }}</td>
+                        <td>
+                            <span class="badge {% if a.sexo == 'Macho' %}bg-primary{% else %}bg-danger{% endif %}">
+                                {{ a.sexo }}
+                            </span>
+                        </td>
+                        <td>{{ a.fecha_nacimiento|date:"d/m/Y" }}</td>
+                        <td>
+                            {% if a.foto %}
+                                <img src="{{ a.foto.url }}" class="img-animal">
+                            {% else %}
+                                <i class="fa fa-image text-muted"></i>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'editarAnimal' a.id %}" class="btn btn-outline-warning btn-sm">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                            <a href="{% url 'eliminarAnimal' a.id %}" 
+                            class="btn btn-outline-danger btn-sm"
+                            onclick="return confirm('¿Eliminar este animal?');">
+                                <i class="fa fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<style>
+.img-animal {
+    width: 45px;
+    height: 45px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #198754;
+}
+
+#tbl_animales tbody tr:hover {
+    background-color: #f1f8f5;
+    transition: 0.2s ease-in-out;
+}
+
+.card-header h5 {
+    font-weight: 600;
+}
+
+
+</style>
+
+<script>
+    new DataTable('#tbl_animales', {
+        responsive: true,
+        language: {
+            search: "Buscar:",
+            lengthMenu: "Mostrar _MENU_ registros",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ animales"
+        }
+    });
+
+</script>
+
+{% endblock %}

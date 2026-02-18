@@ -1,0 +1,88 @@
+{% extends './plantillas.html' %}
+{% block contenido %}
+<div class="container-fluid mt-5 px-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary bg-gradient text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fa fa-line-chart me-2"></i> Gestión de Producción
+            </h5>
+            <a href="{% url 'ProduccionIndex' %}?tipo=leche" class="btn btn-primary btn-sm">Leche</a>
+            <a href="{% url 'ProduccionIndex' %}?tipo=carne" class="btn btn-dark btn-sm">Carne</a>
+            <a href="{% url 'ProduccionIndex' %}" class="btn btn-secondary btn-sm">Todas</a>
+                        {% if user.rol == 'administrador' %}
+            <div>
+                <a href="{% url 'nuevaProduccion' %}" class="btn btn-light btn-sm me-2">
+                    <i class="fa fa-plus"></i> Nueva
+                </a>
+                <a href="{% url 'generar_pdf_produccion' %}" class="btn btn-danger btn-sm">
+                    <i class="fa fa-file-pdf-o"></i> PDF
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="card-body">
+            <table id="tbl_produccion" class="table table-striped table-hover align-middle">
+                <thead class="table-secondary text-center">
+                    <tr>
+                        <th>#</th>
+                        <th>Animal</th>
+                        <th>Fecha</th>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Observaciones</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center">
+                    {% for p in producciones %}
+                    <tr>
+                        <td class="fw-semibold">{{ p.id }}</td>
+                        <td>{{ p.animal }}</td>
+                        <td>{{ p.fecha|date:"d/m/Y" }}</td>
+                        <td>
+                            <span class="badge bg-success">
+                                {{ p.tipo_producto }}
+                            </span>
+                        </td>
+                        <td class="fw-bold">{{ p.cantidad }}</td>
+                        <td class="text-start">{{ p.observaciones|truncatechars:40 }}</td>
+                        <td>
+                            <a href="{% url 'editarProduccion' p.id %}" class="btn btn-outline-warning btn-sm">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                            <a href="{% url 'eliminarProduccion' p.id %}" 
+                            class="btn btn-outline-danger btn-sm"
+                            onclick="return confirm('¿Eliminar esta producción?');">
+                                <i class="fa fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<style>
+#tbl_produccion tbody tr:hover {
+    background-color: #f1f8f5;
+    transition: 0.2s ease-in-out;
+}
+
+.card-header h5 {
+    font-weight: 600;
+}
+</style>
+<script>
+    new DataTable('#tbl_produccion', {
+        responsive: true,
+        language: {
+            search: "Buscar:",
+            lengthMenu: "Mostrar _MENU_ registros",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ producciones"
+        }
+    });
+
+</script>
+{% endblock %}

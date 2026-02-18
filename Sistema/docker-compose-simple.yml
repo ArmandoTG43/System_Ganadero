@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:15
+    container_name: ganadero_db
+    environment:
+      POSTGRES_DB: ganadero_db
+      POSTGRES_USER: ganadero_user
+      POSTGRES_PASSWORD: ganadero_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

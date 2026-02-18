@@ -1,0 +1,138 @@
+{% extends './plantillas.html' %}
+{% block contenido %}
+
+<br><br><br><br><br>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm p-4">
+                <h2 class="text-muted fs-4 text-center">Registre la otro Evento</h2>
+                <form action="{% url 'guardarEvento' %}" method="POST" id="frm_evento_nuevo" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label">Animal <span class="text-danger"></span></label>
+                        <select name="animal" class="form-select" required>
+                            <option value="">-- Seleccione un animal --</option>
+                            {% for a in animales %}
+                            <option value="{{ a.id }}">{{ a }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Evento <span class="text-danger"></span></label>
+                        <select name="tipo_evento" class="form-select" required>
+                            <option value="">-- Seleccione un tipo --</option>
+                            <option value="nacimiento">Nacimiento</option>
+                            <option value="vacunacion">Vacunación</option>
+                            <option value="enfermedad">Enfermedad</option>
+                            <option value="venta">Venta</option>
+                            <option value="inseminacion">Inseminación</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Fecha del Evento <span class="text-danger"></span></label>
+                        <input type="date" name="fecha_evento" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea name="descripcion" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Responsable <span class="text-danger"></span></label>
+                        <select name="responsable" class="form-select" required>
+                            <option value="">-- Seleccione un responsable --</option>
+                            {% for u in usuarios %}
+                            <option value="{{ u.id }}">{{ u.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fa fa-save"></i> Guardar
+                        </button>
+                        <a href="{% url 'EventoIndex' %}" class="btn btn-secondary btn-lg">
+                            <i class="fa fa-arrow-left"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Validaciones con jQuery Validate -->
+<script>
+$(document).ready(function(){
+
+    // MÉTODO PERSONALIZADO: fecha no futura
+    $.validator.addMethod("notFutureDate", function(value, element){
+        if (!value) return true;
+        var today = new Date();
+        var inputDate = new Date(value);
+        today.setHours(0,0,0,0); // ignorar horas
+        return inputDate <= today;
+    }, "La fecha no puede ser futura");
+
+    $("#frm_evento_nuevo").validate({
+        rules: {
+            animal: { required: true },
+            tipo_evento: { required: true },
+            fecha_evento: { required: true, date: true, notFutureDate: true },
+            responsable: { required: true },
+            descripcion: { maxlength: 250 }  // opcional: límite de 250 caracteres
+        },
+        messages: {
+            animal: "Seleccione un animal",
+            tipo_evento: "Seleccione un tipo de evento",
+            fecha_evento: {
+                required: "Ingrese la fecha del evento",
+                notFutureDate: "La fecha no puede ser posterior a hoy"
+            },
+            responsable: "Seleccione un responsable",
+            descripcion: "Máximo 250 caracteres"
+        },
+        errorClass: "text-danger",
+        errorElement: "small",
+        highlight: function(element) {
+            $(element).addClass("is-invalid");
+        },
+        unhighlight: function(element) {
+            $(element).removeClass("is-invalid");
+        }
+    });
+
+});
+</script>
+
+
+<style>
+/* Diseño moderno */
+.card {
+    border-radius: 1rem;
+    background-color: #fdfdfd;
+}
+.card .form-label {
+    font-weight: 600;
+}
+.card .form-control, .card .form-select {
+    border-radius: 0.5rem;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    transition: 0.3s;
+}
+.card .form-control:focus, .card .form-select:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.2rem rgba(40,167,69,0.25);
+}
+.card button:hover {
+    transform: scale(1.02);
+    transition: 0.2s;
+}
+</style>
+
+{% endblock %}

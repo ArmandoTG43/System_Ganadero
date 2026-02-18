@@ -1,0 +1,159 @@
+{% extends './plantillas.html' %}
+{% block contenido %}
+
+<div class="perfil-card">
+
+    <h2 class="perfil-titulo">Editar Perfil</h2>
+
+    <form method="POST" enctype="multipart/form-data" class="perfil-form" id="frm_perfil_editar">
+        {% csrf_token %}
+
+        <div class="perfil-grid">
+
+            <div class="perfil-campo">
+                <label>Nombre completo</label>
+                <input type="text" name="nombre_completo"
+                       value="{{ perfil.nombre_completo }}" required>
+            </div>
+
+            <div class="perfil-campo">
+                <label>Teléfono</label>
+                <input type="text" name="telefono"
+                       value="{{ perfil.telefono }}">
+            </div>
+
+            <div class="perfil-campo perfil-full">
+                <label>Dirección</label>
+                <textarea name="direccion" rows="3">{{ perfil.direccion }}</textarea>
+            </div>
+
+            <div class="perfil-campo perfil-full">
+                <label>Foto de perfil</label>
+                <input type="file" name="foto" accept="image/*">
+            </div>
+
+            {% if perfil.foto %}
+            <div class="perfil-campo perfil-full perfil-preview">
+                <img src="{{ perfil.foto.url }}" class="perfil-foto-preview">
+            </div>
+            {% endif %}
+
+        </div>
+
+        <div class="perfil-acciones">
+            <a href="{% url 'perfil' %}" class="btn btn-secondary">
+                Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary">
+                Guardar cambios
+            </button>
+        </div>
+
+    </form>
+
+</div>
+<style>
+    .perfil-titulo {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.perfil-form input,
+.perfil-form textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.perfil-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.perfil-full {
+    grid-column: 1 / -1;
+}
+
+.perfil-preview {
+    text-align: center;
+}
+
+.perfil-foto-preview {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #4CAF50;
+}
+
+.perfil-acciones {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+</style>
+
+<script>
+$(document).ready(function () {
+
+    $.validator.addMethod("soloLetras", function(value) {
+        return /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value);
+    }, "Solo se permiten letras");
+
+    $.validator.addMethod("soloNumeros", function(value) {
+        return value === "" || /^[0-9]+$/.test(value);
+    }, "Solo se permiten números");
+
+    $("#frm_perfil_editar").validate({
+        rules: {
+            nombre_completo: {
+                required: true,
+                minlength: 3,
+                soloLetras: true
+            },
+            telefono: {
+                soloNumeros: true,
+                minlength: 7,
+                maxlength: 10
+            },
+            direccion: {
+                maxlength: 200
+            },
+            foto: {
+                extension: "jpg|jpeg|png"
+            }
+        },
+        messages: {
+            nombre_completo: {
+                required: "El nombre es obligatorio",
+                minlength: "Mínimo 3 caracteres",
+                soloLetras: "Solo letras, sin números"
+            },
+            telefono: {
+                soloNumeros: "Solo números",
+                minlength: "Mínimo 7 dígitos",
+                maxlength: "Máximo 10 dígitos"
+            },
+            direccion: {
+                maxlength: "Máximo 200 caracteres"
+            },
+            foto: {
+                extension: "Solo imágenes JPG o PNG"
+            }
+        },
+        errorClass: "text-danger",
+        errorElement: "small",
+        highlight: function(element) {
+            $(element).addClass("is-invalid");
+        },
+        unhighlight: function(element) {
+            $(element).removeClass("is-invalid");
+        }
+    });
+
+});
+</script>
+
+{% endblock %}

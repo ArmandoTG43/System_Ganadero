@@ -1,0 +1,147 @@
+{% extends './plantillas.html' %}
+{% block contenido %}
+
+<br><br><br><br><br>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm p-4">
+                <h2 class="text-muted fs-4 text-center">Editar el Evento</h2>
+
+                <form action="{% url 'actualizarEvento' %}" method="POST" id="frm_evento_editar" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="id" value="{{ evento.id }}">
+
+                    <div class="mb-3">
+                        <label class="form-label">Animal <span class="text-danger"></span></label>
+                        <select name="animal" class="form-select" required>
+                            <option value="">-- Seleccione un animal --</option>
+                            {% for a in animales %}
+                            <option value="{{ a.id }}" {% if evento.animal.id == a.id %}selected{% endif %}>{{ a }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Evento <span class="text-danger"></span></label>
+                        <select name="tipo_evento" class="form-select" required>
+                            <option value="">-- Seleccione un tipo --</option>
+                            <option value="nacimiento" {% if evento.tipo_evento == "nacimiento" %}selected{% endif %}>Nacimiento</option>
+                            <option value="vacunacion" {% if evento.tipo_evento == "vacunacion" %}selected{% endif %}>Vacunación</option>
+                            <option value="enfermedad" {% if evento.tipo_evento == "enfermedad" %}selected{% endif %}>Enfermedad</option>
+                            <option value="venta" {% if evento.tipo_evento == "venta" %}selected{% endif %}>Venta</option>
+                            <option value="inseminacion" {% if evento.tipo_evento == "inseminacion" %}selected{% endif %}>Inseminación</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Fecha del Evento <span class="text-danger"></span></label>
+                        <input type="date" name="fecha_evento" class="form-control" value="{{ evento.fecha_evento }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea name="descripcion" class="form-control" rows="3">{{ evento.descripcion }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Responsable <span class="text-danger"></span></label>
+                        <select name="responsable" class="form-select" required>
+                            {% if evento.responsable %}
+                                <!-- Solo mostrar el responsable que ya tiene el evento -->
+                                <option value="{{ evento.responsable.id }}" selected>
+                                    {{ evento.responsable.username }}
+                                </option>
+                            {% else %}
+                                <!-- Si no hay responsable, mostrar la lista normal -->
+                                <option value="">-- Seleccione un responsable --</option>
+                                {% for u in usuarios %}
+                                <option value="{{ u.id }}">{{ u.username }}</option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
+
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fa fa-save"></i> Actualizar
+                        </button>
+                        <a href="{% url 'EventoIndex' %}" class="btn btn-secondary btn-lg">
+                            <i class="fa fa-arrow-left"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Validaciones con jQuery Validate -->
+<script>
+$(document).ready(function(){
+
+    // MÉTODO PERSONALIZADO: fecha no futura
+    $.validator.addMethod("notFutureDate", function(value, element){
+        if (!value) return true;
+        var today = new Date();
+        var inputDate = new Date(value);
+        today.setHours(0,0,0,0); // ignorar horas
+        return inputDate <= today;
+    }, "La fecha no puede ser futura");
+
+    $("#frm_evento_editar").validate({
+        rules: {
+            animal: { required: true },
+            tipo_evento: { required: true },
+            fecha_evento: { required: true, date: true, notFutureDate: true },
+            responsable: { required: true },
+            descripcion: { maxlength: 250 }  // opcional: límite de 250 caracteres
+        },
+        messages: {
+            animal: "Seleccione un animal",
+            tipo_evento: "Seleccione un tipo de evento",
+            fecha_evento: {
+                required: "Ingrese la fecha del evento",
+                notFutureDate: "La fecha no puede ser posterior a hoy"
+            },
+            responsable: "Seleccione un responsable",
+            descripcion: "Máximo 250 caracteres"
+        },
+        errorClass: "text-danger",
+        errorElement: "small",
+        highlight: function(element) {
+            $(element).addClass("is-invalid");
+        },
+        unhighlight: function(element) {
+            $(element).removeClass("is-invalid");
+        }
+    });
+
+});
+</script>
+
+<style>
+/* Diseño moderno consistente con Nuevo Evento */
+.card {
+    border-radius: 1rem;
+    background-color: #fdfdfd;
+}
+.card .form-label {
+    font-weight: 600;
+}
+.card .form-control, .card .form-select {
+    border-radius: 0.5rem;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    transition: 0.3s;
+}
+.card .form-control:focus, .card .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13,110,253,0.25);
+}
+.card button:hover {
+    transform: scale(1.02);
+    transition: 0.2s;
+}
+</style>
+
+{% endblock %}

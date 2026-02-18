@@ -1,0 +1,130 @@
+{% extends './plantillas.html' %}
+{% block contenido %}
+
+<br><br><br><br><br>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm p-4">
+                <h2 class="text-muted fs-4 text-center">Registre la Producción</h2>
+                <form action="{% url 'guardarProduccion' %}" method="POST" id="frm_produccion_nueva">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label">Animal <span class="text-danger"></span></label>
+                        <select name="animal" class="form-select" required>
+                            <option value="">-- Seleccione un animal --</option>
+                            {% for a in animales %}
+                            <option value="{{ a.id }}">{{ a }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Fecha <span class="text-danger"></span></label>
+                        <input type="date" name="fecha" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Producto <span class="text-danger"></span></label>
+                        <select name="tipo_producto" class="form-select" required>
+                            <option value="">-- Seleccione un tipo --</option>
+                            <option value="leche">Leche</option>
+                            <option value="carne">Carne</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Cantidad <span class="text-danger"></span></label>
+                        <input type="number" step="0.01" name="cantidad" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Observaciones</label>
+                        <textarea name="observaciones" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fa fa-save"></i> Guardar
+                        </button>
+                        <a href="{% url 'ProduccionIndex' %}" class="btn btn-secondary btn-lg">
+                            <i class="fa fa-arrow-left"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Validaciones con jQuery Validate -->
+<script>
+$(document).ready(function(){
+
+    // MÉTODO PERSONALIZADO: fecha no futura
+    $.validator.addMethod("notFutureDate", function(value, element){
+        if (!value) return true;
+        var today = new Date();
+        var inputDate = new Date(value);
+        today.setHours(0,0,0,0); // ignorar horas
+        return inputDate <= today;
+    }, "La fecha no puede ser futura");
+
+    $("#frm_produccion_nueva").validate({
+        rules: {
+            animal: { required: true },
+            fecha: { required: true, date: true, notFutureDate: true },
+            tipo_producto: { required: true },
+            cantidad: { required: true, number: true, min: 0.01, max:20 },
+            observaciones: { maxlength: 250 }  // opcional: límite de 250 caracteres
+        },
+        messages: {
+            animal: "Seleccione un animal",
+            fecha: {
+                required: "Ingrese la fecha",
+                notFutureDate: "La fecha no puede ser posterior a hoy"
+            },
+            tipo_producto: "Seleccione un tipo de producto",
+            cantidad: "Ingrese la cantidad (mayor a 0 y menor o igual a 20)",
+            observaciones: "Máximo 250 caracteres"
+        },
+        errorClass: "text-danger",
+        errorElement: "small",
+        highlight: function(element) {
+            $(element).addClass("is-invalid");
+        },
+        unhighlight: function(element) {
+            $(element).removeClass("is-invalid");
+        }
+    });
+
+});
+</script>
+
+
+<style>
+/* Diseño moderno */
+.card {
+    border-radius: 1rem;
+    background-color: #fdfdfd;
+}
+.card .form-label {
+    font-weight: 600;
+}
+.card .form-control, .card .form-select {
+    border-radius: 0.5rem;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    transition: 0.3s;
+}
+.card .form-control:focus, .card .form-select:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.2rem rgba(40,167,69,0.25);
+}
+.card button:hover {
+    transform: scale(1.02);
+    transition: 0.2s;
+}
+</style>
+
+{% endblock %}

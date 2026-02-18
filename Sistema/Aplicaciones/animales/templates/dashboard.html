@@ -1,0 +1,141 @@
+{% extends './plantillas.html' %}
+{% block contenido %}
+
+<br><br><br>
+
+<div class="container">
+
+    <!-- TÍTULO -->
+    <div class="text-center mb-5">
+        <h1 class="fw-bold">Dashboard Ganadero</h1>
+        <p class="text-muted">Resumen general del sistema</p>
+    </div>
+
+    <!-- TARJETAS -->
+    <div class="row g-4 mb-5 text-center">
+
+        <div class="col-md-3">
+            <div class="card dashboard-card shadow-sm">
+                <div class="card-body">
+                    <div class="icon bg-primary">🐄</div>
+                    <h6 class="text-muted mt-3">Animales</h6>
+                    <h2 class="fw-bold">{{ total_animales }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card dashboard-card shadow-sm">
+                <div class="card-body">
+                    <div class="icon bg-success">🩺</div>
+                    <h6 class="text-muted mt-3">Eventos</h6>
+                    <h2 class="fw-bold">{{ total_eventos }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card dashboard-card shadow-sm">
+                <div class="card-body">
+                    <div class="icon bg-warning">🥛</div>
+                    <h6 class="text-muted mt-3">Producción Total</h6>
+                    <h2 class="fw-bold">{{ total_produccion }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card dashboard-card shadow-sm">
+                <div class="card-body">
+                    <div class="icon bg-danger">📅</div>
+                    <h6 class="text-muted mt-3">Producción del Mes</h6>
+                    <h2 class="fw-bold">{{ produccion_mes }}</h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- PRODUCCIÓN MENSUAL -->
+    <div class="card shadow mb-5">
+        <div class="card-header bg-dark text-white fw-bold">
+            Producción Mensual
+        </div>
+        <div class="card-body">
+            <table class="table table-hover text-center align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mes</th>
+                        <th>Total Producido</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in produccion_mensual %}
+                    <tr>
+                        <td>Mes {{ p.fecha__month }}</td>
+                        <td class="fw-bold text-success">{{ p.total }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2" class="text-muted">Sin registros</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- PRODUCCIÓN POR ANIMAL -->
+    <div class="card shadow">
+        <div class="card-header bg-dark text-white fw-bold">
+            Producción por Animal
+        </div>
+        <div class="card-body">
+            <table class="table table-striped text-center align-middle">
+                <thead>
+                    <tr>
+                        <th>ID Animal</th>
+                        <th>Total Producción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in produccion_animal %}
+                    <tr>
+                        <td>{{ p.animal__id }}</td>
+                        <td class="fw-bold">{{ p.total }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2" class="text-muted">Sin datos</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<style>
+.dashboard-card {
+    border-radius: 16px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+.icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+}
+</style>
+
+{% endblock %}

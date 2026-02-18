@@ -1,0 +1,86 @@
+{% extends './plantillas.html' %}
+{% block contenido %}
+<div class="container-fluid mt-5 px-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary bg-gradient text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fa fa-calendar-check-o me-2"></i> Gestión de Eventos
+            </h5>
+
+            {% if user.rol == 'administrador' %}
+            <div>
+                <a href="{% url 'nuevaEvento' %}" class="btn btn-light btn-sm me-2">
+                    <i class="fa fa-plus"></i> Nuevo
+                </a>
+                <a href="{% url 'generar_pdf_eventos' %}" class="btn btn-danger btn-sm">
+                    <i class="fa fa-file-pdf-o"></i> PDF
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="card-body">
+            <table id="tbl_eventos" class="table table-striped table-hover align-middle">
+                <thead class="table-secondary text-center">
+                    <tr>
+                        <th>#</th>
+                        <th>Animal</th>
+                        <th>Tipo Evento</th>
+                        <th>Fecha</th>
+                        <th>Descripción</th>
+                        <th>Responsable</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center">
+                    {% for e in eventos %}
+                    <tr>
+                        <td class="fw-semibold">{{ e.id }}</td>
+                        <td>{{ e.animal }}</td>
+                        <td>
+                            <span class="badge bg-info text-dark">
+                                {{ e.tipo_evento }}
+                            </span>
+                        </td>
+                        <td>{{ e.fecha_evento|date:"d/m/Y" }}</td>
+                        <td class="text-start">{{ e.descripcion|truncatechars:40 }}</td>
+                        <td>{{ e.responsable }}</td>
+                        <td>
+                            <a href="{% url 'editarEvento' e.id %}" class="btn btn-outline-warning btn-sm">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                            <a href="{% url 'eliminarEvento' e.id %}" 
+                            class="btn btn-outline-danger btn-sm"
+                            onclick="return confirm('¿Eliminar este evento?');">
+                                <i class="fa fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<style>
+#tbl_eventos tbody tr:hover {
+    background-color: #f1f8f5;
+    transition: 0.2s ease-in-out;
+}
+
+.card-header h5 {
+    font-weight: 600;
+}
+</style>
+<script>
+    new DataTable('#tbl_eventos', {
+        responsive: true,
+        language: {
+            search: "Buscar:",
+            lengthMenu: "Mostrar _MENU_ registros",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ eventos"
+        }
+    });
+</script>
+
+{% endblock %}
