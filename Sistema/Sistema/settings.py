@@ -89,7 +89,7 @@ DATABASES = {
         'NAME': 'ganadero_db',
         'USER': 'ganadero_user',
         'PASSWORD': 'ganadero_password',
-        'HOST': 'localhost',
+        'HOST': 'db',
         'PORT': '5432',
     }
 }
